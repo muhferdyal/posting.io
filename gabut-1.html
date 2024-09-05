@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Posting Page</title>
+    
+</head>
+<body>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+.post-section {
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+#feed {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#postsContainer {
+    margin-top: 20px;
+}
+
+.post {
+    background-color: #e9ecef;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+    </style>
+    <div class="container">
+        <header>
+            <h1>Posting di Beranda</h1>
+        </header>
+        <section class="post-section">
+            <h2>Buat Posting Baru</h2>
+            <form id="postForm">
+                <textarea id="postContent" placeholder="Tulis sesuatu..." rows="4"></textarea><br>
+                <button type="submit">Posting</button>
+            </form>
+        </section>
+        <section id="feed">
+            <h2>Beranda</h2>
+            <div id="postsContainer"></div>
+        </section>
+    </div>
+
+    <script>
+        // Muat postingan dari localStorage ketika halaman dimuat
+window.onload = function() {
+    loadPosts();
+};
+
+// Event listener untuk menambah postingan
+document.getElementById("postForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const postContent = document.getElementById("postContent").value;
+
+    if (postContent.trim() !== "") {
+        addPost(postContent);
+        savePostToLocalStorage(postContent);
+        document.getElementById("postContent").value = ""; // Kosongkan textarea
+    } else {
+        alert("Konten tidak boleh kosong!");
+    }
+});
+
+// Fungsi untuk menambahkan posting ke beranda
+function addPost(content, index = null) {
+    const newPost = document.createElement("div");
+    newPost.classList.add("post");
+
+    const postId = index !== null ? index : new Date().getTime(); // ID unik untuk setiap post
+    newPost.setAttribute("data-id", postId);
+    newPost.innerHTML = `
+        <p>${content}</p>
+        <button class="delete-btn" onclick="deletePost(${postId})">Hapus</button>
+    `;
+
+    document.getElementById("postsContainer").prepend(newPost);
+}
+
+// Fungsi untuk menyimpan posting ke localStorage
+function savePostToLocalStorage(content) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts.push(content);
+    localStorage.setItem("posts", JSON.stringify(posts));
+}
+
+// Fungsi untuk memuat postingan dari localStorage
+function loadPosts() {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts.forEach((content, index) => {
+        addPost(content, index);
+    });
+}
+
+// Fungsi untuk menghapus postingan
+function deletePost(postId) {
+    const postElement = document.querySelector(`[data-id="${postId}"]`);
+    if (postElement) {
+        postElement.remove();
+        removePostFromLocalStorage(postId);
+    }
+}
+
+// Fungsi untuk menghapus posting dari localStorage
+function removePostFromLocalStorage(postId) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts.splice(postId, 1); // Hapus post berdasarkan index
+    localStorage.setItem("posts", JSON.stringify(posts));
+}
+
+    </script>
+</body>
+</html>
